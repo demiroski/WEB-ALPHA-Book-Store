@@ -84,14 +84,14 @@ Live deployment link: Not available yet.
 Add at least two screenshots here before final submission:
 
 ### Homepage
-![Homepage Screenshot](screenshots/homepage.png)
+![Homepage Screenshot](homepage.png)
 
 ### Admin Dashboard
-![Admin Dashboard Screenshot](screenshots/admin-dashboard.png)
+![Admin Dashboard Screenshot](admin-dashboard.png)
 
 ## Future Improvements
 - Add a real backend using Node.js and Express.
-- Connect the project to MongoDB or Firebase.
+- Connect the project to MongoDB or Firebase.S
 - Implement secure authentication with hashed passwords.
 - Deploy the frontend and backend online.
 - Improve mobile responsiveness further.
