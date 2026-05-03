@@ -1,0 +1,1385 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ALPHA Book Store - Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+      integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script>
+      if (
+        localStorage.getItem("isLoggedIn") !== "true" ||
+        localStorage.getItem("role") !== "admin"
+      ) {
+        window.location.href = "index.html";
+      }
+    </script>
+    <style>
+      .admin-container {
+        width: 90%;
+        margin: 50px auto;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      }
+      .admin-header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #3e356b;
+        font-size: 36px;
+      }
+      .admin-section {
+        margin-bottom: 50px;
+      }
+      .admin-section h2 {
+        color: #089da1;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #089da1;
+        padding-bottom: 10px;
+      }
+      .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+      }
+      .admin-card {
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .admin-card img {
+        width: 100px;
+        height: 150px;
+        object-fit: cover;
+        margin-bottom: 10px;
+        border-radius: 4px;
+      }
+      .admin-card h3 {
+        font-size: 18px;
+        margin-bottom: 5px;
+        color: #333;
+      }
+      .admin-card p {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+      }
+      .admin-card .badge {
+        display: inline-block;
+        background: #089da1;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body
+    style="
+      background-image: url(&quot;image/wolfe.jpg&quot;);
+      background-size: cover;
+      background-attachment: fixed;
+    "
+  >
+    <section id="ALPHA" style="height: auto; min-height: 100vh">
+      <nav
+        style="
+          box-shadow: 0 0 20px #1900ff;
+          background: rgba(255, 255, 255, 0.8);
+        "
+      >
+        <div class="logo">
+          <img src="image/logo.png" style="width: 135px; height: auto" />
+        </div>
+        <ul>
+          <li><a href="index.html">Back to Home</a></li>
+        </ul>
+        <div
+          class="social_icon"
+          style="display: flex; align-items: center; gap: 15px"
+        >
+          <button
+            id="logoutBtn"
+            class="login_nav_btn"
+            style="
+              padding: 8px 18px;
+              border: none;
+              border-radius: 20px;
+              background: #089da1;
+              color: white;
+              cursor: pointer;
+              font-weight: bold;
+            "
+          >
+            Logout
+          </button>
+        </div>
+      </nav>
+
+      <div class="admin-container">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+          "
+        >
+          <h1 class="admin-header" style="margin-bottom: 0">Admin Dashboard</h1>
+          <div style="display: flex; gap: 15px">
+            <button
+              id="adminAddBookBtn"
+              style="
+                padding: 10px 20px;
+                background: #3e356b;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+              "
+            >
+              ➕ Add New Book
+            </button>
+            <button
+              id="clearDataBtn"
+              style="
+                padding: 10px 20px;
+                background: #e74c3c;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+              "
+            >
+              Clear All Local Data
+            </button>
+          </div>
+        </div>
+
+        <!-- Users Section -->
+        <div class="admin-section">
+          <h2>👥 Registered Users</h2>
+          <div
+            id="usersStats"
+            style="margin-bottom: 16px; font-size: 16px; color: #555"
+          ></div>
+          <div class="admin-grid" id="usersGrid"></div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="admin-section">
+          <h2>📦 Book Orders</h2>
+          <div class="admin-grid" id="ordersGrid"></div>
+        </div>
+
+        <!-- Book Management Section -->
+        <div class="admin-section">
+          <h2>📚 Book Management (Storefront Catalog)</h2>
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Book Info</th>
+                  <th>Price & Discount</th>
+                  <th>Rating</th>
+                  <th>Visibility</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookManagementTbody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+          <div
+            id="adminTableToggleContainer"
+            style="
+              text-align: center;
+              margin-top: -15px;
+              margin-bottom: 20px;
+              display: none;
+            "
+          >
+            <button
+              id="adminTableToggleBtn"
+              style="
+                padding: 10px 25px;
+                background: linear-gradient(135deg, #089da1, #3e356b);
+                color: #fff;
+                border: none;
+                border-radius: 25px;
+                font-size: 14px;
+                font-weight: bold;
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s;
+              "
+            >
+              Show More Books
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-section">
+          <h2>User Liked Books</h2>
+          <div class="admin-grid" id="likesGrid"></div>
+        </div>
+
+        <div class="admin-section">
+          <h2>User Reviews</h2>
+          <div class="admin-grid" id="reviewsGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Edit Book Modal -->
+    <div class="review-overlay" id="adminEditBookOverlay">
+      <div
+        class="review-wrapper"
+        style="width: 400px; max-height: 90vh; overflow-y: auto"
+      >
+        <form id="adminEditBookForm">
+          <h2 style="margin-bottom: 20px">✏️ Edit Book Details</h2>
+          <input type="hidden" id="editBookTitle" />
+
+          <div class="review_input_box">
+            <label
+              style="
+                font-size: 12px;
+                color: #666;
+                font-weight: bold;
+                display: block;
+                text-align: left;
+                margin-bottom: 5px;
+              "
+              >Original Price ($)</label
+            >
+            <input
+              type="number"
+              step="0.01"
+              id="editBookPrice"
+              required
+              placeholder="e.g. 100.00"
+            />
+          </div>
+
+          <div class="review_input_box">
+            <label
+              style="
+                font-size: 12px;
+                color: #666;
+                font-weight: bold;
+                display: block;
+                text-align: left;
+                margin-bottom: 5px;
+              "
+              >Discount (%) (Optional)</label
+            >
+            <input
+              type="number"
+              step="1"
+              min="0"
+              max="100"
+              id="editBookDiscount"
+              placeholder="e.g. 20"
+            />
+          </div>
+
+          <div
+            class="review_input_box"
+            style="
+              background: #f9f9f9;
+              padding: 10px;
+              border-radius: 8px;
+              border: 1px solid #eee;
+            "
+          >
+            <label
+              style="
+                font-size: 12px;
+                color: #089da1;
+                font-weight: bold;
+                display: block;
+                text-align: left;
+                margin-bottom: 5px;
+              "
+              >💰 Final Discounted Price</label
+            >
+            <div
+              id="editBookFinalPrice"
+              style="font-size: 20px; font-weight: bold; color: #3e356b"
+            >
+              $0.00
+            </div>
+          </div>
+
+          <div class="review_input_box">
+            <label
+              style="
+                font-size: 12px;
+                color: #666;
+                font-weight: bold;
+                display: block;
+                text-align: left;
+                margin-bottom: 5px;
+              "
+              >Rating (0-5)</label
+            >
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              max="5"
+              id="editBookRating"
+              required
+            />
+          </div>
+
+          <button type="submit" class="review_btn" style="margin-top: 10px">
+            Save Changes
+          </button>
+          <button
+            type="button"
+            class="review_btn"
+            id="adminCloseEditBookBtn"
+            style="background: #e74c3c; margin-top: 10px"
+          >
+            Cancel
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Book Modal for Admin -->
+    <div class="review-overlay" id="adminAddBookOverlay">
+      <div
+        class="review-wrapper"
+        style="width: 540px; max-height: 90vh; overflow-y: auto"
+      >
+        <form id="adminAddBookForm">
+          <h2 style="margin-bottom: 10px">📚 Add New Book</h2>
+
+          <!-- OpenLibrary Fetch UI -->
+          <div
+            class="review_input_box"
+            style="
+              display: flex;
+              gap: 10px;
+              margin-bottom: 15px;
+              background: rgba(8, 157, 161, 0.05);
+              padding: 15px;
+              border-radius: 10px;
+              border: 1px dashed #089da1;
+            "
+          >
+            <input
+              type="text"
+              id="openLibraryQuery"
+              placeholder="Search by Title or Author..."
+              style="
+                flex: 1;
+                border-radius: 5px;
+                padding: 8px 12px;
+                border: 1px solid #ccc;
+                background: #fff;
+                color: #333;
+              "
+            />
+            <button
+              type="button"
+              id="openLibraryFetchBtn"
+              style="
+                padding: 8px 15px;
+                background: #089da1;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 13px;
+                transition: 0.3s;
+              "
+            >
+              🔍 Fetch
+            </button>
+            <button
+              type="button"
+              id="openLibraryRandomBtn"
+              style="
+                padding: 8px 15px;
+                background: #3e356b;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 13px;
+                transition: 0.3s;
+              "
+            >
+              🎲 Random
+            </button>
+          </div>
+          <p
+            id="openLibraryStatus"
+            style="
+              font-size: 12px;
+              color: #e74c3c;
+              margin-top: -10px;
+              margin-bottom: 15px;
+              display: none;
+              font-weight: bold;
+              text-align: center;
+            "
+          ></p>
+
+          <div class="review_input_box">
+            <input
+              type="text"
+              id="adminBookTitle"
+              placeholder="Book Title"
+              required
+            />
+          </div>
+
+          <div class="review_input_box">
+            <input
+              type="text"
+              id="adminBookAuthor"
+              placeholder="Author Name"
+              required
+            />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+            <div class="review_input_box">
+              <label
+                style="
+                  font-size: 12px;
+                  color: #666;
+                  font-weight: bold;
+                  display: block;
+                  text-align: left;
+                  margin-bottom: 5px;
+                "
+                >Original Price ($)</label
+              >
+              <input
+                type="number"
+                step="0.01"
+                id="adminBookPrice"
+                placeholder="e.g. 50.00"
+                required
+              />
+            </div>
+            <div class="review_input_box">
+              <label
+                style="
+                  font-size: 12px;
+                  color: #666;
+                  font-weight: bold;
+                  display: block;
+                  text-align: left;
+                  margin-bottom: 5px;
+                "
+                >Discount (%)</label
+              >
+              <input
+                type="number"
+                step="1"
+                min="0"
+                max="100"
+                id="adminBookDiscount"
+                placeholder="0 - 100"
+              />
+            </div>
+          </div>
+
+          <div
+            class="review_input_box"
+            style="
+              background: #f0fdfd;
+              padding: 12px;
+              border-radius: 10px;
+              border: 1.5px solid #089da1;
+              margin-bottom: 20px;
+            "
+          >
+            <label
+              style="
+                font-size: 12px;
+                color: #089da1;
+                font-weight: bold;
+                display: block;
+                text-align: left;
+                margin-bottom: 5px;
+              "
+              >💰 Auto-Calculated Final Price</label
+            >
+            <div
+              id="adminBookFinalPriceDisplay"
+              style="font-size: 22px; font-weight: bold; color: #3e356b"
+            >
+              $0.00
+            </div>
+          </div>
+
+          <div class="review_input_box">
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              max="5"
+              id="adminBookRating"
+              placeholder="Rating (0–5)"
+              required
+            />
+          </div>
+
+          <div class="review_input_box">
+            <input
+              type="url"
+              id="adminBookImage"
+              placeholder="Book Image URL"
+              required
+            />
+          </div>
+
+          <div class="review_input_box">
+            <textarea
+              id="adminBookSummary"
+              placeholder="Book Summary / Description..."
+              style="height: 90px; resize: vertical"
+            ></textarea>
+          </div>
+
+          <div class="review_input_box">
+            <span class="form-group-label"
+              >📂 Book Categories (select one or more)</span
+            >
+            <div class="category-checkbox-group" id="categoryCheckboxGroup">
+              <label class="category-checkbox-label"
+                ><input type="checkbox" value="Fiction" /> 📖 Fiction</label
+              >
+              <label class="category-checkbox-label"
+                ><input type="checkbox" value="Romance" /> 💕 Romance</label
+              >
+              <label class="category-checkbox-label"
+                ><input type="checkbox" value="Mystery" /> 🔍 Mystery</label
+              >
+              <label class="category-checkbox-label"
+                ><input type="checkbox" value="Fantasy" /> 🧙 Fantasy</label
+              >
+              <label class="category-checkbox-label"
+                ><input type="checkbox" value="Science" /> 🔬 Science</label
+              >
+              <label class="category-checkbox-label"
+                ><input type="checkbox" value="Technology" /> 💻
+                Technology</label
+              >
+              <label class="category-checkbox-label"
+                ><input type="checkbox" value="History" /> 🏛️ History</label
+              >
+              <label class="category-checkbox-label"
+                ><input type="checkbox" value="Business" /> 💼 Business</label
+              >
+              <label class="category-checkbox-label"
+                ><input type="checkbox" value="Horror" /> 👻 Horror</label
+              >
+              <label class="category-checkbox-label"
+                ><input type="checkbox" value="Self-development" /> 💡
+                Self-development</label
+              >
+            </div>
+            <span class="form-error-msg" id="categoryError"></span>
+          </div>
+
+          <div class="review_buttons" style="margin-top: 16px">
+            <a href="#" id="adminCloseAddBookBtn">Close</a>
+            <button type="submit" class="review_submit_btn">Add Book</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // 0. Load Registered Users
+        // =========================================
+            // Admin Users
+            // =========================================
+            const users = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+        const usersStats = document.getElementById("usersStats");
+        const usersGrid = document.getElementById("usersGrid");
+        // Always include the hardcoded accounts
+        const allUsers = [...users];
+        if (!allUsers.find((u) => u.username === "Demiroski"))
+          allUsers.unshift({ username: "Demiroski", role: "admin" });
+        if (!allUsers.find((u) => u.username === "Adam"))
+          allUsers.unshift({ username: "Adam", role: "user" });
+        usersStats.innerHTML = `<strong>Total Users: ${allUsers.length}</strong>`;
+        if (allUsers.length === 0) {
+          usersGrid.innerHTML = "<p>No registered users yet.</p>";
+        } else {
+          allUsers.forEach((u) => {
+            usersGrid.innerHTML += `
+                        <div class="admin-card" style="text-align:center;">
+                            <span class="badge" style="background:${u.role === "admin" ? "#3e356b" : "#089da1"};">${u.role || "user"}</span>
+                            <i class="fa-solid fa-user" style="font-size:40px;color:#ccc;margin:12px 0;display:block;"></i>
+                            <h3>${u.username}</h3>
+                            ${u.joined ? `<p>Joined: ${new Date(u.joined).toLocaleDateString()}</p>` : ""}
+                        </div>`;
+          });
+        }
+
+        // 0.5 Load Orders
+        const orders = JSON.parse(localStorage.getItem("orders")) || [];
+        const ordersGrid = document.getElementById("ordersGrid");
+        if (orders.length === 0) {
+          ordersGrid.innerHTML = "<p>No confirmed orders yet.</p>";
+        } else {
+          orders.forEach((o, idx) => {
+            const date = new Date(o.date).toLocaleString();
+            const mapHref =
+              o.mapLink ||
+              (o.lat && o.lng
+                ? `https://www.openstreetmap.org/?mlat=${o.lat}&mlon=${o.lng}#map=17/${o.lat}/${o.lng}`
+                : null);
+            const mapBtn = mapHref
+              ? `<a href="${mapHref}" target="_blank"
+                              style="display:inline-block;margin-top:6px;padding:5px 12px;background:#089da1;color:#fff;border-radius:20px;font-size:12px;text-decoration:none;font-weight:bold;">
+                              📍 Open Location on Map
+                           </a>`
+              : `<span style="font-size:12px;color:#aaa;">No map pin</span>`;
+
+            ordersGrid.innerHTML += `
+                        <div class="admin-card" style="min-width:220px;">
+                            <span class="badge" style="background:#3e356b;">Order #${idx + 1} — ${o.userName}</span>
+                            <img src="${o.bookImage}" alt="Book Cover">
+                            <h3>${o.bookTitle}</h3>
+                            <div style="font-size:13px;color:#444;text-align:left;margin-top:8px;line-height:1.7;">
+                                <p><strong>👤 Customer:</strong> ${o.fullName || o.userName}</p>
+                                <p><strong>📞 Phone:</strong> ${o.phone || "—"}</p>
+                                <p><strong>✉️ Email:</strong> ${o.email || "—"}</p>
+                                <p><strong>📦 Qty:</strong> ${o.quantity}</p>
+                                <p><strong>🌍 Country:</strong> ${o.country || "—"}</p>
+                                <p><strong>🏙️ City:</strong> ${o.city || "—"}</p>
+                                <p><strong>🏠 Address:</strong> ${o.address}</p>
+                                <p><strong>📝 Notes:</strong> ${o.notes || "—"}</p>
+                            </div>
+                            <div style="margin-top:8px;">${mapBtn}</div>
+                            <p style="font-size:11px;color:#bbb;margin-top:8px;">🕐 ${date}</p>
+                        </div>`;
+          });
+        }
+
+        // 1. Book Management Section
+        const bookManagementTbody = document.getElementById(
+          "bookManagementTbody",
+        );
+        const overrides =
+          JSON.parse(localStorage.getItem("bookOverrides")) || {};
+        const localBooks = JSON.parse(localStorage.getItem("books")) || [];
+
+        let adminAllBooks = [];
+
+        // Push old books
+        if (typeof featuredBooksData !== "undefined") {
+          featuredBooksData.forEach((b) => {
+            let over = overrides[b.title] || {};
+            if (over.isDeleted) return;
+
+            let origPrice =
+              over.originalPrice !== undefined
+                ? over.originalPrice
+                : parseFloat(
+                    (b.oldPrice || b.newPrice || "0").replace("$", ""),
+                  );
+            let disc = over.discount !== undefined ? over.discount : 0;
+
+            // Bug Fix: If old system had oldPrice but new system hasn't updated yet
+            if (over.discount === undefined && over.oldPrice) {
+              let op = parseFloat(over.oldPrice);
+              let np =
+                over.price || parseFloat((b.newPrice || "0").replace("$", ""));
+              if (op > np) disc = Math.round(((op - np) / op) * 100);
+              origPrice = op;
+            }
+
+            let finalPrice = origPrice * (1 - disc / 100);
+
+            adminAllBooks.push({
+              title: b.title,
+              author: b.author,
+              image: b.image,
+              genre: b.genre || "",
+              originalPrice: origPrice,
+              discount: disc,
+              price: finalPrice,
+              rating: over.rating !== undefined ? over.rating : b.rating || 5,
+              isHidden: over.isHidden || false,
+              isCustom: false,
+            });
+          });
+        }
+
+        // Push custom books
+        localBooks.forEach((b) => {
+          let over = overrides[b.title] || {};
+          if (over.isDeleted) return;
+
+          let origPrice =
+            over.originalPrice !== undefined
+              ? over.originalPrice
+              : parseFloat(b.originalPrice || b.price || 0);
+          let disc =
+            over.discount !== undefined ? over.discount : b.discount || 0;
+          let finalPrice = origPrice * (1 - disc / 100);
+
+          adminAllBooks.push({
+            title: b.title,
+            author: b.author || b.addedBy || "Admin",
+            image: b.image,
+            genre: Array.isArray(b.categories)
+              ? b.categories.join(", ")
+              : b.genre || "",
+            originalPrice: origPrice,
+            discount: disc,
+            price: finalPrice,
+            rating:
+              over.rating !== undefined
+                ? over.rating
+                : parseFloat(b.rating) || 5,
+            isHidden: over.isHidden || false,
+            isCustom: true,
+          });
+        });
+
+        let showAllAdminBooks = false;
+
+        function renderAdminTable() {
+          if (!bookManagementTbody) return;
+          bookManagementTbody.innerHTML = "";
+
+          const toggleContainer = document.getElementById(
+            "adminTableToggleContainer",
+          );
+          const toggleBtn = document.getElementById("adminTableToggleBtn");
+
+          if (adminAllBooks.length === 0) {
+            bookManagementTbody.innerHTML =
+              "<tr><td colspan='6' style='text-align:center;'>No books found.</td></tr>";
+            if (toggleContainer) toggleContainer.style.display = "none";
+            return;
+          }
+
+          adminAllBooks.forEach((b, idx) => {
+            if (!showAllAdminBooks && idx >= 3) return; // Limit to 3 books
+
+            const statusBadge = b.isHidden
+              ? '<span class="status-badge status-hidden">Hidden</span>'
+              : '<span class="status-badge status-visible">Visible</span>';
+
+            const hideBtn = b.isHidden
+              ? `<button class="action-btn btn-show" onclick="toggleVisibility('${b.title.replace(/'/g, "\\'")}', false)">👁️ Show</button>`
+              : `<button class="action-btn btn-hide" onclick="toggleVisibility('${b.title.replace(/'/g, "\\'")}', true)">🙈 Hide</button>`;
+
+            const finalPrice = parseFloat(b.price);
+            const originalPrice = parseFloat(b.originalPrice);
+            const discount = parseInt(b.discount) || 0;
+
+            let priceHTML = "";
+            if (discount > 0) {
+              priceHTML = `
+                            <div style="font-weight:bold; color:#e74c3c; font-size:16px;">$${finalPrice.toFixed(2)}</div>
+                            <div style="text-decoration:line-through; color:#999; font-size:12px;">$${originalPrice.toFixed(2)}</div>
+                            <span style="display:inline-block; background:#e74c3c; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; margin-top:4px;">${discount}% OFF</span>
+                        `;
+            } else {
+              priceHTML = `<div style="font-weight:bold; color:#333; font-size:16px;">$${originalPrice.toFixed(2)}</div>`;
+            }
+
+            bookManagementTbody.innerHTML += `
+                        <tr>
+                            <td><img src="${b.image}" class="admin-table-img"></td>
+                            <td>
+                                <strong>${b.title}</strong><br>
+                                <small style="color:#666;">By: ${b.author}</small><br>
+                                <small style="color:#089da1;">${b.genre}</small>
+                            </td>
+                            <td>${priceHTML}</td>
+                            <td>${b.rating} ⭐</td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="openEditModal(${idx})">✏️ Edit</button>
+                                ${hideBtn}
+                                <button class="action-btn btn-delete" onclick="deleteBook('${b.title.replace(/'/g, "\\'")}')">🗑️ Delete</button>
+                            </td>
+                        </tr>
+                    `;
+          });
+
+          if (toggleContainer && toggleBtn) {
+            if (adminAllBooks.length <= 3) {
+              toggleContainer.style.display = "none";
+            } else {
+              toggleContainer.style.display = "block";
+              if (showAllAdminBooks) {
+                toggleBtn.innerHTML = "Show Less Books (▲)";
+              } else {
+                toggleBtn.innerHTML = `Show More Books (${adminAllBooks.length - 3} more) ▼`;
+              }
+            }
+          }
+        }
+
+        renderAdminTable();
+
+        const adminTableToggleBtn = document.getElementById(
+          "adminTableToggleBtn",
+        );
+        if (adminTableToggleBtn) {
+          adminTableToggleBtn.addEventListener("click", () => {
+            showAllAdminBooks = !showAllAdminBooks;
+            renderAdminTable();
+          });
+        }
+
+        window.toggleVisibility = function (title, hide) {
+          const over = JSON.parse(localStorage.getItem("bookOverrides")) || {};
+          if (!over[title]) over[title] = {};
+          over[title].isHidden = hide;
+          localStorage.setItem("bookOverrides", JSON.stringify(over));
+          window.location.reload();
+        };
+
+        window.deleteBook = function (title) {
+          if (
+            confirm(`Are you sure you want to permanently delete "${title}"?`)
+          ) {
+            const over =
+              JSON.parse(localStorage.getItem("bookOverrides")) || {};
+            if (!over[title]) over[title] = {};
+            over[title].isDeleted = true;
+            localStorage.setItem("bookOverrides", JSON.stringify(over));
+            window.location.reload();
+          }
+        };
+
+        // =========================================
+            // Edit Book
+            // =========================================
+            const editOverlay = document.getElementById("adminEditBookOverlay");
+        const editForm = document.getElementById("adminEditBookForm");
+
+        function updateEditFinalPrice() {
+          const p =
+            parseFloat(document.getElementById("editBookPrice").value) || 0;
+          const d =
+            parseInt(document.getElementById("editBookDiscount").value) || 0;
+          const final = p * (1 - d / 100);
+          document.getElementById("editBookFinalPrice").textContent =
+            `$${final.toFixed(2)}`;
+        }
+
+        document
+          .getElementById("editBookPrice")
+          .addEventListener("input", updateEditFinalPrice);
+        document
+          .getElementById("editBookDiscount")
+          .addEventListener("input", updateEditFinalPrice);
+
+        window.openEditModal = function (idx) {
+          const b = adminAllBooks[idx];
+          document.getElementById("editBookTitle").value = b.title;
+          document.getElementById("editBookPrice").value = b.originalPrice;
+          document.getElementById("editBookDiscount").value = b.discount || "";
+          document.getElementById("editBookRating").value = b.rating;
+          updateEditFinalPrice();
+          if (editOverlay) editOverlay.classList.add("show");
+        };
+
+        if (document.getElementById("adminCloseEditBookBtn")) {
+          document
+            .getElementById("adminCloseEditBookBtn")
+            .addEventListener("click", () => {
+              editOverlay.classList.remove("show");
+            });
+        }
+
+        if (editForm) {
+          editForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const title = document.getElementById("editBookTitle").value;
+            const originalPrice = parseFloat(
+              document.getElementById("editBookPrice").value,
+            );
+            const discount =
+              parseInt(document.getElementById("editBookDiscount").value) || 0;
+            const rating = parseFloat(
+              document.getElementById("editBookRating").value,
+            );
+
+            if (discount < 0 || discount > 100) {
+              alert("Discount must be between 0 and 100.");
+              return;
+            }
+
+            const over =
+              JSON.parse(localStorage.getItem("bookOverrides")) || {};
+            if (!over[title]) over[title] = {};
+
+            over[title].originalPrice = originalPrice;
+            over[title].discount = discount;
+            over[title].price = originalPrice * (1 - discount / 100);
+            over[title].rating = rating;
+
+            // Clear old data fields if any
+            delete over[title].oldPrice;
+
+            localStorage.setItem("bookOverrides", JSON.stringify(over));
+            alert("✔ Book details updated!");
+            editOverlay.classList.remove("show");
+            window.location.reload();
+          });
+        }
+        // 1.5 Load Likes
+        // =========================================
+            // Likes & Reviews
+            // =========================================
+            const likes = JSON.parse(localStorage.getItem("likes")) || [];
+        const likesGrid = document.getElementById("likesGrid");
+        if (likes.length === 0) {
+          likesGrid.innerHTML = "<p>No liked books yet.</p>";
+        } else {
+          likes.forEach((like) => {
+            const date = new Date(like.date).toLocaleDateString();
+            likesGrid.innerHTML += `
+                        <div class="admin-card">
+                            <span class="badge" style="background: #e74c3c;">Liked by: ${like.userName}</span>
+                            <img src="${like.bookImage}" alt="Book Cover">
+                            <h3>${like.bookTitle}</h3>
+                            <p>Date: ${date}</p>
+                        </div>
+                    `;
+          });
+        }
+
+        // 3. Load Reviews
+        const reviews = JSON.parse(localStorage.getItem("reviews")) || [];
+        const reviewsGrid = document.getElementById("reviewsGrid");
+        if (reviews.length === 0) {
+          reviewsGrid.innerHTML = "<p>No reviews added yet.</p>";
+        } else {
+          reviews.forEach((review) => {
+            let stars = "";
+            for (let i = 0; i < review.rating; i++) stars += "⭐";
+            reviewsGrid.innerHTML += `
+                        <div class="admin-card">
+                            <span class="badge">Reviewer: ${review.name}</span>
+                            <h3 style="margin-top: 10px;">${stars}</h3>
+                            <p style="font-style: italic;">"${review.text}"</p>
+                        </div>
+                    `;
+          });
+        }
+        // 4. Clear Data Button
+        const clearDataBtn = document.getElementById("clearDataBtn");
+        if (clearDataBtn) {
+          clearDataBtn.addEventListener("click", () => {
+            const confirmClear = confirm(
+              "Are you sure you want to delete ALL saved data (selections, books, reviews)? This cannot be undone.",
+            );
+            if (confirmClear) {
+              localStorage.clear();
+              alert("All local data has been deleted.");
+              window.location.reload();
+            }
+          });
+        }
+
+        // 5. Logout Button
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", () => {
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("username");
+            localStorage.removeItem("role");
+            window.location.href = "index.html";
+          });
+        }
+
+        // 6. Theme Toggle
+        
+
+        // 7. Add Book Logic
+        const adminAddBookBtn = document.getElementById("adminAddBookBtn");
+        const adminAddBookOverlay = document.getElementById(
+          "adminAddBookOverlay",
+        );
+        const adminCloseAddBookBtn = document.getElementById(
+          "adminCloseAddBookBtn",
+        );
+        const adminAddBookForm = document.getElementById("adminAddBookForm");
+
+        // Checkbox visual feedback
+        document
+          .querySelectorAll(".category-checkbox-label input[type='checkbox']")
+          .forEach((cb) => {
+            cb.addEventListener("change", function () {
+              this.closest(".category-checkbox-label").classList.toggle(
+                "checked",
+                this.checked,
+              );
+            });
+          });
+
+        if (adminAddBookBtn && adminAddBookOverlay) {
+          adminAddBookBtn.addEventListener("click", () => {
+            adminAddBookOverlay.classList.add("show");
+          });
+        }
+
+        if (adminCloseAddBookBtn) {
+          adminCloseAddBookBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            adminAddBookOverlay.classList.remove("show");
+          });
+        }
+
+        if (adminAddBookForm) {
+          function updateAddBookFinalPrice() {
+            const p =
+              parseFloat(document.getElementById("adminBookPrice").value) || 0;
+            const d =
+              parseInt(document.getElementById("adminBookDiscount").value) || 0;
+            const final = p * (1 - d / 100);
+            document.getElementById("adminBookFinalPriceDisplay").textContent =
+              `$${final.toFixed(2)}`;
+          }
+
+          document
+            .getElementById("adminBookPrice")
+            .addEventListener("input", updateAddBookFinalPrice);
+          document
+            .getElementById("adminBookDiscount")
+            .addEventListener("input", updateAddBookFinalPrice);
+
+          adminAddBookForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const title = document
+              .getElementById("adminBookTitle")
+              .value.trim();
+            const author = document
+              .getElementById("adminBookAuthor")
+              .value.trim();
+            const originalPrice = parseFloat(
+              document.getElementById("adminBookPrice").value,
+            );
+            const discount =
+              parseInt(document.getElementById("adminBookDiscount").value) || 0;
+            const rating = parseFloat(
+              document.getElementById("adminBookRating").value,
+            );
+            const image = document
+              .getElementById("adminBookImage")
+              .value.trim();
+            const summary = document
+              .getElementById("adminBookSummary")
+              .value.trim();
+
+            if (discount < 0 || discount > 100) {
+              alert("Discount must be between 0 and 100.");
+              return;
+            }
+
+            // Collect checked categories
+            const checkedBoxes = document.querySelectorAll(
+              "#categoryCheckboxGroup input[type='checkbox']:checked",
+            );
+            const categories = Array.from(checkedBoxes).map((cb) => cb.value);
+            const categoryError = document.getElementById("categoryError");
+
+            categoryError.textContent = "";
+
+            if (
+              !title ||
+              !author ||
+              isNaN(originalPrice) ||
+              isNaN(rating) ||
+              !image
+            ) {
+              alert("Please fill all required fields correctly.");
+              return;
+            }
+            if (categories.length === 0) {
+              categoryError.textContent =
+                "Please select at least one category.";
+              return;
+            }
+            if (rating < 0 || rating > 5) {
+              alert("Rating must be between 0 and 5.");
+              return;
+            }
+
+            const newBook = {
+              title,
+              author,
+              originalPrice: originalPrice.toFixed(2),
+              discount: discount,
+              price: (originalPrice * (1 - discount / 100)).toFixed(2),
+              rating,
+              image,
+              summary,
+              categories,
+              genre: categories.join(", "), // kept for search compatibility
+              addedBy: localStorage.getItem("username") || "Admin",
+            };
+
+            const savedBooks = JSON.parse(localStorage.getItem("books")) || [];
+            savedBooks.push(newBook);
+            localStorage.setItem("books", JSON.stringify(savedBooks));
+
+            alert("✔ Book added! It will appear on the Home page.");
+            adminAddBookForm.reset();
+            document
+              .querySelectorAll(".category-checkbox-label")
+              .forEach((l) => l.classList.remove("checked"));
+            adminAddBookOverlay.classList.remove("show");
+            window.location.reload();
+          });
+        }
+
+        // --- OpenLibrary API Integration ---
+        const olQueryInput = document.getElementById("openLibraryQuery");
+        const olFetchBtn = document.getElementById("openLibraryFetchBtn");
+        const olRandomBtn = document.getElementById("openLibraryRandomBtn");
+        const olStatus = document.getElementById("openLibraryStatus");
+
+        function showOLStatus(msg, isError = true) {
+          if (!olStatus) return;
+          olStatus.textContent = msg;
+          olStatus.style.color = isError ? "#e74c3c" : "#089da1";
+          olStatus.style.display = "block";
+        }
+
+        function clearOLStatus() {
+          if (olStatus) olStatus.style.display = "none";
+        }
+
+        const categoryMapping = {
+          Fiction: ["fiction", "novel", "literature", "classics"],
+          Romance: ["romance", "love", "relationship", "dating"],
+          Mystery: [
+            "mystery",
+            "detective",
+            "thriller",
+            "crime",
+            "suspense",
+            "noir",
+          ],
+          Fantasy: ["fantasy", "magic", "dragon", "wizard", "epic"],
+          Science: [
+            "science",
+            "mathematics",
+            "biology",
+            "physics",
+            "nature",
+            "environment",
+          ],
+          Technology: [
+            "technology",
+            "computers",
+            "programming",
+            "software",
+            "digital",
+          ],
+          History: [
+            "history",
+            "historical",
+            "biography",
+            "ancient",
+            "war",
+            "politics",
+          ],
+          Business: [
+            "business",
+            "economics",
+            "finance",
+            "management",
+            "startup",
+          ],
+          Horror: ["horror", "ghost", "scary", "supernatural", "vampire"],
+          "Self-development": [
+            "self-help",
+            "psychology",
+            "motivation",
+            "improvement",
+            "success",
+            "spirituality",
+          ],
+        };
+
+        function mapSubjects(subjects) {
+          if (!subjects) return [];
+          const matched = [];
+          const lowerSubjects = subjects.map((s) => s.toLowerCase());
+          for (const [cat, keywords] of Object.entries(categoryMapping)) {
+            if (
+              lowerSubjects.some((ls) => keywords.some((kw) => ls.includes(kw)))
+            ) {
+              matched.push(cat);
+            }
+          }
+          return matched;
+        }
+
+        async function fetchFromOpenLibrary(query, isRandom = false) {
+          clearOLStatus();
+          if (!query && !isRandom) {
+            showOLStatus("Please enter a book title or author.");
+            return;
+          }
+
+          olFetchBtn.disabled = true;
+          olRandomBtn.disabled = true;
+          olFetchBtn.textContent = "⏳...";
+
+          try {
+            let url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=10`;
+            if (isRandom) {
+              const randomTerms = [
+                "bestseller",
+                "award",
+                "classic",
+                "fiction",
+                "famous",
+              ];
+              const term =
+                randomTerms[Math.floor(Math.random() * randomTerms.length)];
+              url = `https://openlibrary.org/search.json?q=${term}&limit=50`;
+            }
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("API connection error");
+
+            const data = await response.json();
+            if (!data.docs || data.docs.length === 0) {
+              showOLStatus("No book found.");
+              return;
+            }
+
+            // Pick first result (or random from first 50)
+            let doc = data.docs[0];
+            if (isRandom) {
+              doc =
+                data.docs[
+                  Math.floor(
+                    Math.random() *
+                      Math.random() *
+                      Math.random() *
+                      data.docs.length,
+                  )
+                ];
+            }
+
+            // 1. Fill basic fields
+            document.getElementById("adminBookTitle").value = doc.title || "";
+            document.getElementById("adminBookAuthor").value = doc.author_name
+              ? doc.author_name[0]
+              : "";
+            document.getElementById("adminBookRating").value =
+              doc.ratings_average ? doc.ratings_average.toFixed(1) : "4.5";
+
+            // 2. Cover image
+            if (doc.cover_i) {
+              document.getElementById("adminBookImage").value =
+                `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+            } else {
+              document.getElementById("adminBookImage").value = "";
+            }
+
+            // 3. Categories
+            const matchedCats = mapSubjects(doc.subject);
+            document
+              .querySelectorAll("#categoryCheckboxGroup input[type='checkbox']")
+              .forEach((cb) => {
+                cb.checked = matchedCats.includes(cb.value);
+                cb.closest(".category-checkbox-label").classList.toggle(
+                  "checked",
+                  cb.checked,
+                );
+              });
+
+            // 4. Fetch Summary (Work description)
+            if (doc.key) {
+              try {
+                const workRes = await fetch(
+                  `https://openlibrary.org${doc.key}.json`,
+                );
+                if (workRes.ok) {
+                  const workData = await workRes.json();
+                  let desc = workData.description;
+                  if (typeof desc === "object") desc = desc.value;
+                  document.getElementById("adminBookSummary").value =
+                    desc || "";
+                }
+              } catch (e) {
+                console.warn("Could not fetch work description", e);
+              }
+            }
+
+            showOLStatus("✔ Data filled successfully!", false);
+          } catch (err) {
+            console.error(err);
+            showOLStatus(
+              "Error fetching from OpenLibrary. Please check your connection.",
+            );
+          } finally {
+            olFetchBtn.disabled = false;
+            olRandomBtn.disabled = false;
+            olFetchBtn.textContent = "🔍 Fetch";
+          }
+        }
+
+        if (olFetchBtn) {
+          olFetchBtn.addEventListener("click", () =>
+            fetchFromOpenLibrary(olQueryInput.value.trim()),
+          );
+        }
+
+        if (olRandomBtn) {
+          olRandomBtn.addEventListener("click", () =>
+            fetchFromOpenLibrary("", true),
+          );
+        }
+
+        if (olQueryInput) {
+          olQueryInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              olFetchBtn.click();
+            }
+          });
+        }
+      });
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>
